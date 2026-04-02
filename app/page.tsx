@@ -1,7 +1,8 @@
 "use client";
 
 import { LimelightNav } from "@/components/ui/limelight-nav";
-import { Home, User, FolderKanban, Sparkles, Mail, ChevronDown } from 'lucide-react';
+import { Home, User, FolderKanban, Sparkles, Mail, Terminal, X } from 'lucide-react';
+import PortfolioTerminal from "@/components/ui/interactive-portfolio-terminal-component";
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 
@@ -96,6 +97,23 @@ const BlurText: React.FC<BlurTextProps> = ({
 };
 
 export default function LandingPage() {
+  const [terminalOpen, setTerminalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setTerminalOpen(false);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = terminalOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [terminalOpen]);
+
   return (
     <>
       <style suppressHydrationWarning>
@@ -193,11 +211,51 @@ export default function LandingPage() {
                 <p className="text-white/40 text-xs" style={{ fontFamily: "'Antic', sans-serif" }}>
                   B.Tech · SPIT Mumbai · Class of 2027
                 </p>
+                {/* Terminal CTA Button */}
+                <button
+                  onClick={() => setTerminalOpen(true)}
+                  className="group inline-flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-black/60 hover:bg-black/80 backdrop-blur-sm border border-green-400/40 hover:border-green-400/80 text-green-400 hover:text-green-300 text-sm font-mono font-medium tracking-wide transition-all duration-300 hover:shadow-[0_0_20px_rgba(74,222,128,0.2)] active:scale-95"
+                >
+                  <Terminal size={15} className="group-hover:animate-pulse" />
+                  <span>Explore my profile via terminal</span>
+                  <span className="text-green-400/50 group-hover:text-green-400 transition-colors">_</span>
+                </button>
               </div>
             </div>
 
           </div>
         </section>
+        {/* Terminal Modal */}
+        {terminalOpen && (
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setTerminalOpen(false);
+            }}
+          >
+            <div
+              className="w-full max-w-4xl relative"
+              style={{ animation: 'terminalSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+            >
+              <button
+                onClick={() => setTerminalOpen(false)}
+                className="absolute -top-10 right-0 flex items-center gap-1.5 text-gray-400 hover:text-white text-xs font-mono transition-colors"
+              >
+                <X size={14} />
+                <span>ESC to close</span>
+              </button>
+              <PortfolioTerminal />
+            </div>
+          </div>
+        )}
+
+        <style suppressHydrationWarning>{`
+          @keyframes terminalSlideIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+          }
+        `}</style>
       </div>
     </>
   );
