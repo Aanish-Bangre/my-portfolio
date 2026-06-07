@@ -4,7 +4,8 @@ import { LimelightNav } from "@/components/ui/limelight-nav";
 import { Home, User, FolderKanban, Sparkles, Mail, Terminal, X, Github, Linkedin, Phone, MapPin, ExternalLink, Download, ChevronRight } from 'lucide-react';
 import PortfolioTerminal from "@/components/ui/interactive-portfolio-terminal-component";
 import Image from "next/image";
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 // ─── Nav Items ────────────────────────────────────────────────────────────────
 const navItems = [
@@ -166,31 +167,37 @@ const EXPERIENCE = [
 
 const PROJECTS = [
   {
-    title: "Appointment Management System",
-    subtitle: "Full-Stack · Distributed Systems · Real-time",
-    description:
-      "Production-ready appointment platform with race-condition-proof booking via Redis distributed locks, idempotency keys, and rate limiting. Real-time WebSocket sync with Redis Pub/Sub for live availability updates across all active users.",
-    tags: ["Next.js 16", "TypeScript", "FastAPI", "Redis", "PostgreSQL", "WebSockets"],
-    color: "from-blue-500/10 to-transparent",
-    accent: "#3b82f6",
-  },
-  {
+    slug: "just-rent-it",
     title: "Just Rent It",
     subtitle: "Full-Stack · Real-time Chat · Payment Integration",
     description:
       "P2P rental marketplace with Socket.io-powered real-time chat, Razorpay-based secure payments with automated deposit handling, and a complete authentication + notification system.",
-    tags: ["Next.js 15", "TypeScript", "Socket.io", "Razorpay", "Tailwind CSS", "Radix UI"],
+    tags: ["Next.js 15", "TypeScript", "Appwrite", "Socket.io", "Razorpay", "Tailwind CSS"],
     color: "from-green-500/10 to-transparent",
     accent: "#22c55e",
+    github: "https://github.com/Aanish-Bangre/just-rent-it",
   },
   {
-    title: "Advanced ANPR & Face Recognition",
-    subtitle: "Computer Vision · OCR · Deep Learning",
+    slug: "iitb-anpr",
+    title: "IITB ANPR System",
+    subtitle: "Computer Vision · OCR · Deep Learning · Research",
     description:
-      "Comprehensive ANPR and facial recognition solution using YOLOv5 for multi-object detection, PyTesseract OCR for high-accuracy plate text extraction, and advanced image augmentation with XML annotation handling.",
-    tags: ["YOLOv5", "PyTesseract", "OpenCV", "TensorFlow", "NumPy", "Pandas"],
+      "Professional-grade vehicle tracking and license plate recognition system for IIT Bombay with ROI filtering, Hungarian algorithm tracking, and Indian plate validation powered by YOLOv8 and EasyOCR.",
+    tags: ["YOLOv8", "YOLOv11", "EasyOCR", "FastAPI", "Next.js", "PostgreSQL", "OpenCV", "CUDA"],
     color: "from-purple-500/10 to-transparent",
     accent: "#a855f7",
+    github: "https://github.com/Aanish-Bangre/IITB-Incident_Project",
+  },
+  {
+    slug: "et-money-mentor",
+    title: "ET Money Mentor",
+    subtitle: "AI · Personal Finance · FinTech · Hackathon",
+    description:
+      "AI-powered personal finance mentor targeting 95% of Indians without a financial plan. Features FIRE path planning, money health scoring across 6 dimensions, tax optimization, and couple's financial planning.",
+    tags: ["Next.js", "TypeScript", "FastAPI", "AI/LLM", "Docker", "Python"],
+    color: "from-yellow-500/10 to-transparent",
+    accent: "#f59e0b",
+    github: "https://github.com/Aanish-Bangre/et-money-mentor",
   },
 ];
 
@@ -265,6 +272,7 @@ const SkillBar: React.FC<{ name: string; pct: number; delay: number }> = ({ name
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
+  const router = useRouter();
   const [terminalOpen, setTerminalOpen] = useState(false);
 
   useEffect(() => {
@@ -473,9 +481,9 @@ export default function LandingPage() {
             {PROJECTS.map((proj, i) => (
               <FadeIn key={i} delay={i * 120}>
                 <div
-                  className={`group relative p-6 md:p-8 rounded-2xl border border-white/[0.06] hover:border-white/[0.16] bg-gradient-to-br ${proj.color} transition-all duration-300 overflow-hidden`}
+                  onClick={() => router.push(`/projects/${proj.slug}`)}
+                  className={`group relative p-6 md:p-8 rounded-2xl border border-white/[0.06] hover:border-white/[0.16] bg-gradient-to-br ${proj.color} transition-all duration-300 overflow-hidden cursor-pointer hover:scale-[1.01]`}
                 >
-                  {/* subtle number watermark */}
                   <span className="absolute top-4 right-6 text-6xl font-bold text-white/[0.03] font-mono select-none">
                     {String(i + 1).padStart(2, '0')}
                   </span>
@@ -493,6 +501,20 @@ export default function LandingPage() {
                       </p>
                       <div className="flex flex-wrap gap-2 pt-1">
                         {proj.tags.map((t) => <Chip key={t}>{t}</Chip>)}
+                      </div>
+                      <div className="flex items-center gap-4 pt-2">
+                        <span className="text-xs font-mono flex items-center gap-1.5 transition-colors group-hover:text-white text-white/30">
+                          View Details <ExternalLink size={11} />
+                        </span>
+                        <a
+                          href={proj.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs font-mono flex items-center gap-1.5 text-white/30 hover:text-white transition-colors"
+                        >
+                          <Github size={11} /> GitHub
+                        </a>
                       </div>
                     </div>
                   </div>
