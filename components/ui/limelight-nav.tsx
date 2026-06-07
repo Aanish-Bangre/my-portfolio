@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useLayoutEffect, cloneElement } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 
 // --- Internal Types and Defaults ---
 
@@ -13,6 +13,7 @@ export type NavItem = {
     icon: React.ReactElement<any>;
     label?: string;
     onClick?: () => void;
+    href?: string;
 };
 
 const defaultNavItems: NavItem[] = [
@@ -66,14 +67,36 @@ export const LimelightNav = ({
         }
     }, [activeIndex, isReady, items]);
 
-    if (items.length === 0) {
-        return null;
-    }
+    // Track active section on scroll
+    React.useEffect(() => {
+        const sectionIds = ['home', 'about', 'projects', 'skills', 'contact'];
+        const handleScroll = () => {
+            const scrollY = window.scrollY + 120;
+            let current = 0;
+            sectionIds.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (el && el.offsetTop <= scrollY) current = i;
+            });
+            setActiveIndex(current);
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
-    const handleItemClick = (index: number, itemOnClick?: () => void) => {
+    if (items.length === 0) return null;
+
+    const handleItemClick = (index: number, item: NavItem) => {
         setActiveIndex(index);
         onTabChange?.(index);
-        itemOnClick?.();
+        item.onClick?.();
+
+        // Smooth scroll to section by href or label
+        const sectionIds = ['home', 'about', 'projects', 'skills', 'contact'];
+        const targetId = item.href || sectionIds[index];
+        if (targetId) {
+            const el = document.getElementById(targetId.replace('#', ''));
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
     };
 
     return (
@@ -83,20 +106,18 @@ export const LimelightNav = ({
                     {logo}
                 </div>
             )}
-            {/* Spacer pushes icons to the right */}
             <div className="flex-1" />
-            {items.map(({ id, icon, label, onClick }, index) => (
+            {items.map((item, index) => (
                 <a
-                    key={id}
+                    key={item.id}
                     ref={el => { navItemRefs.current[index] = el; }}
                     className={`relative z-20 flex h-full cursor-pointer items-center justify-center px-5 md:px-6 ${iconContainerClassName}`}
-                    onClick={() => handleItemClick(index, onClick)}
-                    aria-label={label}
+                    onClick={() => handleItemClick(index, item)}
+                    aria-label={item.label}
                 >
-                    {label && (
-                        <span className={`text-sm font-medium tracking-wide transition-opacity duration-100 ease-in-out whitespace-nowrap ${activeIndex === index ? 'opacity-100' : 'opacity-40'
-                            } ${iconClassName || ''}`}>
-                            {label}
+                    {item.label && (
+                        <span className={`text-sm font-medium tracking-wide transition-opacity duration-100 ease-in-out whitespace-nowrap ${activeIndex === index ? 'opacity-100' : 'opacity-40'} ${iconClassName || ''}`}>
+                            {item.label}
                         </span>
                     )}
                 </a>
@@ -104,8 +125,7 @@ export const LimelightNav = ({
 
             <div
                 ref={limelightRef}
-                className={`absolute top-0 z-10 w-11 h-[5px] rounded-full bg-primary shadow-[0_50px_15px_var(--primary)] ${isReady ? 'transition-[left] duration-400 ease-in-out' : ''
-                    } ${limelightClassName}`}
+                className={`absolute top-0 z-10 w-11 h-[5px] rounded-full bg-primary shadow-[0_50px_15px_var(--primary)] ${isReady ? 'transition-[left] duration-400 ease-in-out' : ''} ${limelightClassName}`}
                 style={{ left: '-999px' }}
             >
                 <div className="absolute left-[-30%] top-[5px] w-[160%] h-14 [clip-path:polygon(5%_100%,25%_0,75%_0,95%_100%)] bg-gradient-to-b from-primary/30 to-transparent pointer-events-none" />
