@@ -72,6 +72,63 @@ const PhaseCard: React.FC<{
   </div>
 );
 
+// ─── Before/After Image Block ────────────────────────────────────────────────
+const BeforeAfterImage: React.FC<{
+  src: string;
+  alt: string;
+  label?: string;
+}> = ({ src, alt, label }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  return (
+    <div className="space-y-2">
+      {label && (
+        <p className="text-white/40 text-xs font-mono tracking-widest uppercase">{label}</p>
+      )}
+      <div className="relative rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.02]">
+        {/* Placeholder shown when image not yet added */}
+        {(!loaded || error) && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6"
+            style={{ minHeight: "220px" }}>
+            <div className="w-12 h-12 rounded-xl bg-blue-400/10 border border-blue-400/20 flex items-center justify-center">
+              <Monitor size={22} className="text-blue-400/60" />
+            </div>
+            <div className="text-center space-y-1">
+              <p className="text-white/40 text-xs font-mono">{src.replace("/", "")}</p>
+              <p className="text-white/20 text-[11px]">Add this image to <code className="text-blue-400/60">public/</code></p>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/30 text-[10px] font-mono">Before</span>
+              <span className="text-white/20 text-[10px]">←—————————————→</span>
+              <span className="px-2 py-0.5 rounded bg-blue-400/[0.08] border border-blue-400/[0.2] text-blue-400/60 text-[10px] font-mono">After</span>
+            </div>
+          </div>
+        )}
+        {/* Real image — shows once file is added to public/ */}
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+          className="w-full h-auto rounded-xl"
+          style={{ display: loaded && !error ? "block" : "none" }}
+        />
+        {/* Dashed border overlay for placeholder state */}
+        {(!loaded || error) && (
+          <div className="inset-0 absolute rounded-xl pointer-events-none"
+            style={{
+              border: "1.5px dashed rgba(59,130,246,0.2)",
+              minHeight: "220px"
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+
 // ─── SVG Bar Chart ────────────────────────────────────────────────────────────
 const BarChart: React.FC<{ data: { label: string; value: number; color: string }[]; title: string }> = ({ data, title }) => {
   const max = Math.max(...data.map(d => d.value));
@@ -880,6 +937,50 @@ export default function GoogleScholarCaseStudy() {
                   </div>
                 </FadeIn>
               ))}
+            </div>
+          </FadeIn>
+
+          {/* ══════════════════════════════════════════════════════
+              BEFORE & AFTER SCREENS
+          ══════════════════════════════════════════════════════ */}
+          <FadeIn>
+            <SectionLabel icon={<Monitor size={16} />}>Before & After Screens</SectionLabel>
+            <p className="text-white/50 text-sm leading-relaxed mb-8 max-w-2xl">
+              Side-by-side comparisons of each redesigned screen — original Google Scholar UI on the left, 
+              the redesigned version on the right.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <BeforeAfterImage
+                src="/settings-before-after.png"
+                alt="Settings page before and after redesign"
+                label="Settings Page"
+              />
+              <BeforeAfterImage
+                src="/homepage-before-after.png"
+                alt="Homepage before and after redesign"
+                label="Home Page"
+              />
+              <BeforeAfterImage
+                src="/article-preview-before-after.png"
+                alt="Article preview page before and after redesign"
+                label="Article Preview"
+              />
+              <BeforeAfterImage
+                src="/author-profile-before-after.png"
+                alt="Author profile page before and after redesign"
+                label="Author Profile"
+              />
+              <BeforeAfterImage
+                src="/my-library-before-after.png"
+                alt="My Library page before and after redesign"
+                label="My Library"
+              />
+              <BeforeAfterImage
+                src="/alerts-before-after.png"
+                alt="Alerts page before and after redesign"
+                label="Alerts Page"
+              />
             </div>
           </FadeIn>
 
