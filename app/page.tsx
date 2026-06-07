@@ -199,6 +199,17 @@ const PROJECTS = [
     accent: "#f59e0b",
     github: "https://github.com/Aanish-Bangre/et-money-mentor",
   },
+  {
+    slug: "google-scholar-redesign",
+    title: "Google Scholar Redesign",
+    subtitle: "UI/UX · Case Study · Research · Figma",
+    description:
+      "A full UX case study redesigning Google Scholar's interface — covering user research (22 respondents), competitive analysis against Semantic Scholar & Scite.ai, persona creation, journey mapping, wireframing, and high-fidelity design with dark mode and smart filters.",
+    tags: ["Figma", "UX Research", "Wireframing", "Prototyping", "Design Systems", "User Testing"],
+    color: "from-blue-500/10 to-transparent",
+    accent: "#3b82f6",
+    github: "https://github.com/Aanish-Bangre/my-portfolio",
+  },
 ];
 
 const SKILLS = [
