@@ -78,51 +78,57 @@ const BeforeAfterImage: React.FC<{
   alt: string;
   label?: string;
 }> = ({ src, alt, label }) => {
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
+  const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
 
   return (
     <div className="space-y-2">
       {label && (
         <p className="text-white/40 text-xs font-mono tracking-widest uppercase">{label}</p>
       )}
-      <div className="relative rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.02]">
-        {/* Placeholder shown when image not yet added */}
-        {(!loaded || error) && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6"
-            style={{ minHeight: "220px" }}>
+      {/* Container: always has min-height so image has layout space to load */}
+      <div
+        className="relative rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.02]"
+        style={{ minHeight: "220px" }}
+      >
+        {/* Image is always in normal flow — opacity fades in when loaded.
+            IMPORTANT: no lazy loading + no display:none/visibility:hidden
+            so the browser always fetches and fires onLoad/onError. */}
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-auto rounded-xl block"
+          style={{
+            opacity: status === "loaded" ? 1 : 0,
+            transition: "opacity 0.4s ease",
+          }}
+          onLoad={() => setStatus("loaded")}
+          onError={() => setStatus("error")}
+        />
+
+        {/* Placeholder overlay — sits on top while loading/error */}
+        {status !== "loaded" && (
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6"
+            style={{ border: "1.5px dashed rgba(59,130,246,0.2)", borderRadius: "0.75rem" }}
+          >
             <div className="w-12 h-12 rounded-xl bg-blue-400/10 border border-blue-400/20 flex items-center justify-center">
               <Monitor size={22} className="text-blue-400/60" />
             </div>
             <div className="text-center space-y-1">
               <p className="text-white/40 text-xs font-mono">{src.replace("/", "")}</p>
-              <p className="text-white/20 text-[11px]">Add this image to <code className="text-blue-400/60">public/</code></p>
+              {status === "error"
+                ? <p className="text-red-400/60 text-[11px]">Image not found — add to <code className="text-blue-400/60">public/</code></p>
+                : <p className="text-white/20 text-[11px]">Loading…</p>
+              }
             </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/30 text-[10px] font-mono">Before</span>
-              <span className="text-white/20 text-[10px]">←—————————————→</span>
-              <span className="px-2 py-0.5 rounded bg-blue-400/[0.08] border border-blue-400/[0.2] text-blue-400/60 text-[10px] font-mono">After</span>
-            </div>
+            {status === "error" && (
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/30 text-[10px] font-mono">Before</span>
+                <span className="text-white/20 text-[10px]">←—————→</span>
+                <span className="px-2 py-0.5 rounded bg-blue-400/[0.08] border border-blue-400/[0.2] text-blue-400/60 text-[10px] font-mono">After</span>
+              </div>
+            )}
           </div>
-        )}
-        {/* Real image — shows once file is added to public/ */}
-        <img
-          src={src}
-          alt={alt}
-          loading="lazy"
-          onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
-          className="w-full h-auto rounded-xl"
-          style={{ display: loaded && !error ? "block" : "none" }}
-        />
-        {/* Dashed border overlay for placeholder state */}
-        {(!loaded || error) && (
-          <div className="inset-0 absolute rounded-xl pointer-events-none"
-            style={{
-              border: "1.5px dashed rgba(59,130,246,0.2)",
-              minHeight: "220px"
-            }}
-          />
         )}
       </div>
     </div>
